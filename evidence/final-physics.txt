@@ -1,0 +1,38 @@
+   Compiling flintglade-ripple v0.1.0 (project checkout)
+    Finished `release` profile [optimized] target(s) in 11.15s
+     Running unittests src/lib.rs (target/release/deps/flintglade_ripple-deb600e2ed6e268b)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (target/release/deps/flintglade_ripple-f192292d96622510)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/physics.rs (target/release/deps/physics-a362d45f81fcf6c8)
+
+running 12 tests
+test invalid_import_does_not_replace_active_experiment ... ok
+test solid_and_face_state_validation ... ok
+test deterministic_restart_preserves_full_state ... ok
+test analytic_gravity_and_capillary_modes_converge_quadratically ... ok
+test narrow_sources_are_cell_integrated_and_time_resolved ... ok
+test dispersion_matches_discrete_reference ... ok
+test depth_scales_gravity_phase_speed ... ok
+test reflective_normal_mode_has_neumann_boundary ... ok
+test impermeable_barrier_prevents_transmission ... ok
+test closed_variable_depth_mass_and_energy ... ok
+test depth_interface_matches_shallow_water_reflection_and_transmission ... ok
+test sponge_and_drag_remove_energy ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.29s
+
+   Doc-tests flintglade_ripple
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
