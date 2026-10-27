@@ -1,0 +1,19 @@
+{
+  "loaded": true,
+  "canvas": [
+    64,
+    64
+  ],
+  "aspect": 1,
+  "view": "height",
+  "legend": "Surface height",
+  "high": "+0.3 mm",
+  "grid": "64x64",
+  "inputCleared": true,
+  "inputsValid": true,
+  "sourceUntouchedParametersExact": true,
+  "changedAmplitude": 0.00016,
+  "resetExactTime": true,
+  "invalidFilePreservesField": true,
+  "invalidFileClearsInput": true
+}
