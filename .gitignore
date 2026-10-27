@@ -1,0 +1,10 @@
+/target/
+/dist/
+/build/
+__pycache__/
+*.pyc
+/web/ripple.wasm
+/verification/
+/.packaging/
+*.spec
+/artifacts/
