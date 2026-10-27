@@ -1,0 +1,9 @@
+# Independent review disposition
+
+Fresh-context numerical/state/Qt/browser/installer review completed2026-10-26. All reported actionable findings were corrected and rechecked: failed-save truncation; stale view/grid controls; duplicate source creation on drag; imported canvas aspect; physical color legends; stale probe caption; subcell source disappearance; unsafe installer cleanup, stale menu matching and deletion of user-added files.
+
+Independent probes:2D discrete mode height error2.78e-19m;11 malformed commands/imports preserve state; Gaussian cell integrals match Python math.erf within1.35e-18m; plane/point source volume invariant across subcell placement and32/64grids; depth-step R=.3318022/T=1.3350873; existing/added/modified files survive relevant save/uninstall/race failure paths. No remaining material defect found in these reviewed paths. This is a scoped correctness review, not a claim of exhaustive validation.
+
+A second reviewer, started without parent conversation context, independently checked immutable466a6ca, found source-edit precision drift and stale browser-import legend, and matched a2D mode within2.98e-19m. Regression tests cover both corrections; final focused recheck passed. All five native and seven browser source controls preserve untouched exact values; Depth/Intensity imports and invalid imports keep the correct view/legend. No unresolved finding.
+
+The redesigned interfaces received another independent review. Native findings about dimension-dependent cm values, focused import controls, paused probe updates, probe tie rounding and960px clipping layout were corrected and independently rechecked. Browser authoritative-focus import and text contrast were corrected and independently rechecked.19 original+6 focused native cases pass. Browser source exactness, live typing, failed-load preservation,320px/desktop layouts, measured contrast and physical readouts pass. No remaining material finding in the reviewed scope.
