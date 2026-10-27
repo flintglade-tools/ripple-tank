@@ -1,0 +1,16 @@
+{
+  "date": "2026-10-26",
+  "native_original_checks": 19,
+  "native_focused_regressions": 6,
+  "native_normal_desktop_launch": true,
+  "native_packaged_restart_exact": true,
+  "browser_widths_px": [
+    320,
+    1440
+  ],
+  "browser_unit_contrast": 4.529,
+  "browser_keyboard_help_contrast": 5.015,
+  "independent_native_review": "pass",
+  "independent_browser_review": "pass",
+  "unresolved_material_findings": []
+}
