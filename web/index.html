@@ -1,0 +1,109 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none';script-src 'self' 'wasm-unsafe-eval';worker-src 'self';style-src 'self';connect-src 'self';img-src 'self' data:;base-uri 'none';form-action 'none'"><title>Ripple Tank · Flintglade Labs</title><link rel="stylesheet" href="ripple-workbench.css"><script type="module" src="app.js"></script></head><body class="ripple-standalone"><main id="main" class="ripple-workspace">
+  <header class="rt-title">
+    <h1>Ripple tank</h1>
+    <p>Linear shallow-water gravity–capillary waves in SI units. Draw barriers and depth steps, drive sources, and measure the surface with a probe.</p>
+    <div class="rt-file" role="group" aria-label="Experiment file">
+      <button id="open" type="button">Open…</button><button id="save" type="button">Save</button><button id="csv" type="button">Export CSV</button>
+      <input id="file" type="file" accept=".json,.ripple.json" hidden>
+    </div>
+  </header>
+  <div class="rt-layout">
+    <section class="rt-stage" aria-label="Water field and measurements">
+      <div class="rt-transport" role="group" aria-label="Simulation">
+        <button class="rt-primary" id="play" type="button" aria-pressed="false"><svg class="rt-i-play" viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 2.6v10.8L13.2 8z"/></svg><svg class="rt-i-pause" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.8h3v10.4H4zM9 2.8h3v10.4H9z"/></svg><span id="play-label">Play</span></button>
+        <button id="step" type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 2.8 10 8l-7 5.2zM11 2.8h2v10.4h-2z"/></svg>Step</button>
+        <label class="rt-scenario"><span class="rt-sr">Experiment</span><select id="scenario"><option value="double-slit">Double slit</option><option value="single-slit">Single slit</option><option value="two-sources">Two sources</option><option value="lens">Shallow lens</option><option value="single">Point source</option><option value="pulse">Pulse</option><option value="empty">Empty tank</option></select></label>
+        <button id="reset" type="button" title="Rebuild the experiment, or restore an opened file to its saved state">Reset</button>
+        <button id="clear" type="button" title="Remove waves; keep walls, depth and sources">Clear waves</button>
+        <p id="status" class="rt-status" role="status">Loading the wave engine…</p>
+        <label class="rt-pace"><span>Pace</span><span class="rt-unit"><input id="pace" type="number" min="1" max="32" step="1" value="8" inputmode="numeric"><span>steps / frame</span></span></label>
+      </div>
+      <div class="rt-bench">
+        <fieldset class="rt-rail" id="tools">
+          <legend class="rt-sr">Field tool</legend>
+          <label class="rt-tool"><input type="radio" name="tool" value="pulse" checked><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="1.9" class="rt-solid-fill"/><circle cx="10" cy="10" r="5"/><circle cx="10" cy="10" r="8.3" opacity=".5"/></svg><span>Pulse</span></label>
+          <label class="rt-tool"><input type="radio" name="tool" value="source"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="5" cy="10" r="2.1" class="rt-solid-fill"/><path d="M8.2 6.2A5 5 0 0 1 8.2 13.8"/><path d="M10.8 3.1A9 9 0 0 1 10.8 16.9" opacity=".5"/></svg><span>Source</span></label>
+          <label class="rt-tool"><input type="radio" name="tool" value="wall"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="7.6" y="1.8" width="4.8" height="6.6" rx="1" class="rt-solid-fill"/><rect x="7.6" y="11.6" width="4.8" height="6.6" rx="1" class="rt-solid-fill"/></svg><span>Wall</span></label>
+          <label class="rt-tool"><input type="radio" name="tool" value="depth"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M2 4.5h16" opacity=".5"/><path d="M2 16.5h5.5l3-6.5H18"/></svg><span>Depth</span></label>
+          <label class="rt-tool"><input type="radio" name="tool" value="erase"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3.4 12.4 10 5.8l5.6 5.6-4.6 4.6H7z"/><path d="M8.6 16h8.6" opacity=".5"/></svg><span>Erase</span></label>
+          <label class="rt-tool"><input type="radio" name="tool" value="probe"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="3.3"/><path d="M10 1.5v4.4M10 14.1v4.4M1.5 10h4.4M14.1 10h4.4"/></svg><span>Probe</span></label>
+        </fieldset>
+        <div class="rt-frame" id="frame">
+          <canvas id="tank" width="200" height="120" tabindex="0" aria-label="Water field" aria-describedby="field-keys"></canvas>
+          <canvas id="tank-overlay" aria-hidden="true"></canvas>
+        </div>
+        <div class="rt-legend">
+          <label class="rt-view"><span>View</span><select id="view"><option value="height">Height</option><option value="intensity">Intensity</option><option value="depth">Depth</option></select></label>
+          <div class="rt-scale"><span id="scale-quantity">Surface height</span><span id="scale-low">−0.3 mm</span><canvas id="colorbar" width="240" height="10" aria-hidden="true"></canvas><span id="scale-high">+0.3 mm</span></div>
+          <span class="rt-swatch"><i aria-hidden="true"></i>Solid</span>
+          <span id="scale-clip" class="rt-clip" hidden>Peak beyond the color scale; colors clip</span>
+          <span class="rt-grid-info"><span id="grid-label" class="rt-meta"></span><span id="grid-dx" class="rt-meta"></span></span>
+        </div>
+      </div>
+      <section class="rt-probe" aria-labelledby="probe-title">
+        <header><h2 id="probe-title">Probe</h2><span id="probe-pos" class="rt-meta"></span><span id="probe-depth" class="rt-meta"></span><strong id="probe-value">0 mm</strong></header>
+        <canvas id="trace" width="600" height="124" aria-label="Surface height at the probe over simulation time" aria-describedby="trace-scale"></canvas>
+        <small id="trace-scale" class="rt-sr">Waiting for simulation time</small>
+      </section>
+    </section>
+    <dl class="rt-readouts">
+      <div><dt>Time</dt><dd><span id="time">0 s</span><small id="steps"></small></dd></div>
+      <div><dt>Time step Δt</dt><dd id="dt">—</dd></div>
+      <div><dt title="Gravity-wave Courant number √(gH)·Δt/Δx">Courant</dt><dd id="courant">—</dd></div>
+      <div><dt>Compute</dt><dd id="compute">—</dd></div>
+      <div><dt>Peak |η|</dt><dd id="height">—</dd></div>
+      <div><dt title="Largest displacement relative to local still-water depth; the linear model assumes η ≪ H">Peak η/H</dt><dd id="ratio">—</dd></div>
+      <div><dt>Energy</dt><dd id="energy">—</dd></div>
+      <div><dt title="Displaced volume relative to the still surface. Sources, the damped rim and wall edits change it.">Volume Δ</dt><dd id="volume">—</dd></div>
+    </dl>
+
+    <aside class="rt-rack" aria-label="Experiment settings">
+      <div class="rt-tabs" role="tablist" aria-label="Settings">
+        <button type="button" role="tab" id="tab-tool" aria-controls="panel-tool" aria-selected="true">Tool</button>
+        <button type="button" role="tab" id="tab-sources" aria-controls="panel-sources" aria-selected="false" tabindex="-1">Sources <span id="source-count" class="rt-count">0</span></button>
+        <button type="button" role="tab" id="tab-water" aria-controls="panel-water" aria-selected="false" tabindex="-1">Water</button>
+      </div>
+      <section class="rt-panel" role="tabpanel" id="panel-tool" aria-labelledby="tab-tool">
+        <h2 id="tool-name">Pulse</h2>
+        <p id="tool-hint" class="rt-hint">Click the field to drop a 0.3 mm Gaussian pulse.</p>
+        <label class="rt-row" data-tools="pulse wall depth erase"><span>Brush radius</span><span class="rt-unit"><input id="brush" type="number" min="1.6" max="160" step="any" value="24"><span>mm</span></span></label>
+        <label class="rt-row" data-tools="depth"><span>Paint depth</span><span class="rt-unit"><input id="paint-depth" type="number" min="0.5" max="200" step="any" value="3"><span>mm</span></span></label>
+        <details class="rt-coords">
+          <summary>Apply at coordinates</summary>
+          <div class="rt-pair">
+            <label><span>x</span><span class="rt-unit"><input id="x" type="number" min="0" max="80" step="any" value="40"><span>cm</span></span></label>
+            <label><span>y</span><span class="rt-unit"><input id="y" type="number" min="0" max="48" step="any" value="24"><span>cm</span></span></label>
+          </div>
+          <button id="apply" type="button" class="rt-wide">Apply pulse here</button>
+        </details>
+        <p id="field-keys" class="rt-keys">On the focused field, arrow keys move the cursor (Shift for larger steps), Enter applies the tool and Space plays or pauses.</p>
+      </section>
+      <section class="rt-panel" role="tabpanel" id="panel-sources" aria-labelledby="tab-sources" hidden>
+        <fieldset id="source-list" class="rt-sources"><legend class="rt-sr">Select a source to edit</legend></fieldset>
+        <p id="source-empty" class="rt-hint" hidden>No sources. Choose the Source tool, then click the field.</p>
+        <div id="source-editor" class="rt-editor">
+          <label class="rt-switch"><input id="source-enabled" type="checkbox" checked><span>Driving</span></label>
+          <div class="rt-pair">
+            <label><span>Frequency</span><span class="rt-unit"><input id="frequency" type="number" min="0.05" max="40" step="any" value="3"><span>Hz</span></span></label>
+            <label><span>Drive height</span><span class="rt-unit"><input id="amplitude" type="number" min="0" max="2" step="any" value="0.15"><span>mm</span></span></label>
+            <label><span>Radius</span><span class="rt-unit"><input id="source-radius" type="number" min="0.5" max="100" step="any" value="8"><span>mm</span></span></label>
+            <label><span>Phase</span><span class="rt-unit"><input id="phase" type="number" min="-360" max="360" step="any" value="0"><span>°</span></span></label>
+            <label><span>x</span><span class="rt-unit"><input id="source-x" type="number" min="0" max="80" step="any" value="14.6"><span>cm</span></span></label>
+            <label><span>y</span><span class="rt-unit"><input id="source-y" type="number" min="0" max="48" step="any" value="24"><span>cm</span></span></label>
+          </div>
+          <button class="rt-wide rt-quiet" id="source-remove" type="button">Remove source</button>
+        </div>
+      </section>
+      <section class="rt-panel" role="tabpanel" id="panel-water" aria-labelledby="tab-water" hidden>
+        <label class="rt-row"><span>Still depth H</span><span class="rt-unit"><input id="depth" type="number" min="0.5" max="200" step="any" value="8"><span>mm</span></span></label>
+        <label class="rt-row"><span>Gravity g</span><span class="rt-unit"><input id="gravity" type="number" min="0.1" max="30" step="any" value="9.81"><span>m/s²</span></span></label>
+        <label class="rt-row"><span>Surface tension σ</span><span class="rt-unit"><input id="tension" type="number" min="0" max="100" step="any" value="72"><span>mN/m</span></span></label>
+        <label class="rt-row"><span>Drag γ</span><span class="rt-unit"><input id="damping" type="number" min="0" max="10" step="any" value="0.08"><span>s⁻¹</span></span></label>
+        <label class="rt-row"><span>Boundary</span><select id="boundary"><option value="sponge">Damped rim</option><option value="reflective">Reflective walls</option><option value="periodic">Periodic</option></select></label>
+        <label class="rt-row rt-grid"><span>Grid</span><select id="resolution"><option value="128">128 × 77</option><option value="200" selected>200 × 120</option><option value="320">320 × 192</option><option value="512">512 × 307</option></select></label>
+        <p class="rt-hint">Changing the grid restarts the experiment. Depth rescales painted regions in proportion.</p>
+      </section>
+    </aside>
+  </div>
+</main>
+</body></html>
